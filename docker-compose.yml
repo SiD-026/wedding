@@ -1,0 +1,48 @@
+version: "3.0"
+
+services:
+  db:
+    container_name: wedding-db
+    image: mongo:latest
+    restart: always
+    volumes:
+      - ./weddingdata/db:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - wedding
+      
+
+  backend:
+    container_name: wedding-backend
+    build: ./backend
+    volumes:
+      - .:/code
+
+    env_file:
+      - ./backend/.env
+    ports:
+      - "5000:5000"
+    restart: always
+    networks:
+      - wedding
+    depends_on:
+      - db
+
+  frontend:
+    container_name: wedding-frontend
+    build : ./frontend
+    volumes:
+      - ./weddingdata/proxy:/data
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - wedding
+
+networks:
+  wedding:
+
+volumes:
+  weddingdata:
